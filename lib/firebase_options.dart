@@ -39,18 +39,18 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDq7H5hIowWvcGmIq7m2RofB843-Eyfz1g',
-    appId: '1:861858508386:web:22dd1fc78ba3466b692b3b',
+    appId: '1:861858508386:web:00e6858950a57098692b3b',
     messagingSenderId: '861858508386',
     projectId: 'cordrila',
     authDomain: 'cordrila.firebaseapp.com',
     databaseURL: 'https://cordrila-default-rtdb.firebaseio.com',
     storageBucket: 'cordrila.appspot.com',
-    measurementId: 'G-MZLZL86DP6',
+    measurementId: 'G-XVGWTJL1F2',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo',
-    appId: '1:861858508386:android:12eaa2ff301ccdd8692b3b',
+    appId: '1:861858508386:android:96bf051199bec920692b3b',
     messagingSenderId: '861858508386',
     projectId: 'cordrila',
     databaseURL: 'https://cordrila-default-rtdb.firebaseio.com',
@@ -59,33 +59,33 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBjQthrt9SEnKt3r37zQz8tM0_LHfxrkyM',
-    appId: '1:861858508386:ios:9adf14920cfd024e692b3b',
+    appId: '1:861858508386:ios:22c871fdeb07b4e6692b3b',
     messagingSenderId: '861858508386',
     projectId: 'cordrila',
     databaseURL: 'https://cordrila-default-rtdb.firebaseio.com',
     storageBucket: 'cordrila.appspot.com',
-    iosBundleId: 'com.example.newApp',
+    iosBundleId: 'com.example.cordrilaExe',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBjQthrt9SEnKt3r37zQz8tM0_LHfxrkyM',
-    appId: '1:861858508386:ios:9adf14920cfd024e692b3b',
+    appId: '1:861858508386:ios:22c871fdeb07b4e6692b3b',
     messagingSenderId: '861858508386',
     projectId: 'cordrila',
     databaseURL: 'https://cordrila-default-rtdb.firebaseio.com',
     storageBucket: 'cordrila.appspot.com',
-    iosBundleId: 'com.example.newApp',
+    iosBundleId: 'com.example.cordrilaExe',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDq7H5hIowWvcGmIq7m2RofB843-Eyfz1g',
-    appId: '1:861858508386:web:9e018c02c4332589692b3b',
+    appId: '1:861858508386:web:38fe967ec2d37495692b3b',
     messagingSenderId: '861858508386',
     projectId: 'cordrila',
     authDomain: 'cordrila.firebaseapp.com',
     databaseURL: 'https://cordrila-default-rtdb.firebaseio.com',
     storageBucket: 'cordrila.appspot.com',
-    measurementId: 'G-K58Y830JFR',
+    measurementId: 'G-6H9MHYN564',
   );
 
   static const FirebaseOptions linux = FirebaseOptions(

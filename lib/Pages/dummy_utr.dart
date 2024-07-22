@@ -30,7 +30,7 @@ class UtrPage extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(CupertinoPageRoute(
-                      builder: (context) => const SigninPage()));
+                      builder: (context) =>  LoginPage()));
                 },
                 child: const Text(
                   'Go Back',

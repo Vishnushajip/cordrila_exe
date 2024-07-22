@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
-import 'package:path_provider_windows/path_provider_windows.dart';
 import 'package:provider/provider.dart';
 
 class FreshFilterProvider extends ChangeNotifier {
@@ -548,9 +547,16 @@ class _FreshFilterPageState extends State<FreshFilterPage>
   }
 
   Future<String> _getDownloadDirectory() async {
-    final PathProviderWindows provider = PathProviderWindows();
-    final downloadsDir = await provider.getDownloadsPath();
-    return downloadsDir!;
+    // Define the directory on the C drive
+    const String downloadDirectory = 'C:\\Downloads';
+
+    // Create the directory if it doesn't exist
+    final Directory directory = Directory(downloadDirectory);
+    if (!directory.existsSync()) {
+      directory.createSync(recursive: true);
+    }
+
+    return downloadDirectory;
   }
 
   Future<void> _downloadCSV(

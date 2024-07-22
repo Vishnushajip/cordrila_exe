@@ -1,0 +1,144 @@
+{
+  "project_info": {
+    "project_number": "861858508386",
+    "firebase_url": "https://cordrila-default-rtdb.firebaseio.com",
+    "project_id": "cordrila",
+    "storage_bucket": "cordrila.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:12eaa2ff301ccdd8692b3b",
+        "android_client_info": {
+          "package_name": "com.cordrila"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:23816166f5106abd692b3b",
+        "android_client_info": {
+          "package_name": "com.cordrila__.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:8a0a42567754d6f6692b3b",
+        "android_client_info": {
+          "package_name": "com.cordrila_apps"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:94c2d0dbb7199ec9692b3b",
+        "android_client_info": {
+          "package_name": "com.cordrila_systems"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:91ff45b105819458692b3b",
+        "android_client_info": {
+          "package_name": "com.example.cordrila_sysytems"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:84fe8e59ae645d57692b3b",
+        "android_client_info": {
+          "package_name": "com.new_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:861858508386:android:96bf051199bec920692b3b",
+        "android_client_info": {
+          "package_name": "cordrila.exe"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA4tJRzflin1O6UMabgoXdhEzf4WhAkHCo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,13 +1,12 @@
+import 'package:cordrila_exe/Pages/search_name.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import '../controller/req_provider.dart';
 import 'Admin_req.dart';
 import 'AdminshoppingPage.dart';
 import 'admin_freshPage.dart';
 import 'admin_utr.dart';
-import 'editprofile.dart';
 import 'transition.dart';
 
 class TaskPage extends StatefulWidget {
@@ -318,19 +317,11 @@ class _TaskPageState extends State<TaskPage> {
                           ),
                           GestureDetector(
                             onTap: () {
-                              Navigator.of(context).push(
-                                PageRouteBuilder(
-                                  pageBuilder:
-                                      (context, animation, secondaryAnimation) {
-                                    return const TransitionPage(
-                                        destination: EditProfilePage());
-                                  },
-                                  transitionsBuilder: (context, animation,
-                                      secondaryAnimation, child) {
-                                    return child;
-                                  },
-                                ),
-                              );
+                             Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const SearchUser(),
+                            ),
+                          );
                             },
                             child: const Card(
                               elevation: 50,
