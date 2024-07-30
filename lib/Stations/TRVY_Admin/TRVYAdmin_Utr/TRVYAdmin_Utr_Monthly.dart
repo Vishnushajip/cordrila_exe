@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
+import '../../../Widgets/Loaders/Spinner.dart';
 
 class TRVYUtrProviderMonthly extends ChangeNotifier {
   int selectedIndex = 0;
@@ -435,7 +436,7 @@ class _TRVYAdminUtrMonthlyState extends State<TRVYAdminUtrMonthly>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {

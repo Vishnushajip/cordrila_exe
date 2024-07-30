@@ -16,6 +16,7 @@ class EmployeeEditPage extends StatefulWidget {
 }
 
 class _EmployeeEditPageState extends State<EmployeeEditPage> {
+  
   final TextEditingController _employeeNameController = TextEditingController();
   final TextEditingController _empCodeController = TextEditingController();
   final TextEditingController _dobController = TextEditingController();
@@ -112,10 +113,10 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
           'Location': _selectedCategory!.toUpperCase(),
         });
 
-        provider.setUploadStatus('Data uploaded to Firebase successfully');
+        provider.setUploadStatus('Data uploaded successfully');
         _clearTextControllers();
 
-        showMessageDialog('Data uploaded to Firebase successfully!');
+        showMessageDialog('Data uploaded successfully!');
       } catch (e) {
         showMessageDialog('Error uploading data: $e');
       }
@@ -277,6 +278,20 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                       Expanded(
                                         child: TextFormField(
                                           controller: _employeeNameController,
+                                          onChanged: (value) {
+                                            // Trim the input and update the controller
+                                            _employeeNameController.value =
+                                                _employeeNameController.value
+                                                    .copyWith(
+                                              text: value.trim(),
+                                              selection:
+                                                  TextSelection.fromPosition(
+                                                TextPosition(
+                                                    offset:
+                                                        value.trim().length),
+                                              ),
+                                            );
+                                          },
                                           decoration: InputDecoration(
                                               enabledBorder: OutlineInputBorder(
                                                 borderSide: BorderSide(
@@ -311,6 +326,19 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                       ),
                                       Expanded(
                                         child: TextFormField(
+                                          onChanged: (value) {
+                                            _empCodeController.value =
+                                                _empCodeController.value
+                                                    .copyWith(
+                                              text: value.trim(),
+                                              selection:
+                                                  TextSelection.fromPosition(
+                                                TextPosition(
+                                                    offset:
+                                                        value.trim().length),
+                                              ),
+                                            );
+                                          },
                                           controller: _empCodeController,
                                           decoration: InputDecoration(
                                               enabledBorder: OutlineInputBorder(
@@ -346,6 +374,20 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                       ),
                                       Expanded(
                                         child: TextFormField(
+                                          onChanged: (value) {
+                                            // Trim the input and update the controller
+                                            _stationController.value =
+                                                _stationController.value
+                                                    .copyWith(
+                                              text: value.trim(),
+                                              selection:
+                                                  TextSelection.fromPosition(
+                                                TextPosition(
+                                                    offset:
+                                                        value.trim().length),
+                                              ),
+                                            );
+                                          },
                                           controller: _stationController,
                                           decoration: InputDecoration(
                                               enabledBorder: OutlineInputBorder(
@@ -587,6 +629,21 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                                             10),
                                                   ),
                                                   child: TextFormField(
+                                                    onChanged: (value) {
+                                                      // Trim the input and update the controller
+                                                      _MailController.value =
+                                                          _MailController.value
+                                                              .copyWith(
+                                                        text: value.trim(),
+                                                        selection: TextSelection
+                                                            .fromPosition(
+                                                          TextPosition(
+                                                              offset: value
+                                                                  .trim()
+                                                                  .length),
+                                                        ),
+                                                      );
+                                                    },
                                                     controller: _MailController,
                                                     decoration:
                                                         const InputDecoration(
@@ -612,6 +669,21 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                                   BorderRadius.circular(10),
                                             ),
                                             child: TextFormField(
+                                              onChanged: (value) {
+                                                // Trim the input and update the controller
+                                                _dobController.value =
+                                                    _dobController.value
+                                                        .copyWith(
+                                                  text: value.trim(),
+                                                  selection: TextSelection
+                                                      .fromPosition(
+                                                    TextPosition(
+                                                        offset: value
+                                                            .trim()
+                                                            .length),
+                                                  ),
+                                                );
+                                              },
                                               controller: _dobController,
                                               decoration: const InputDecoration(
                                                 contentPadding:
@@ -654,6 +726,24 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                                                 .circular(10),
                                                       ),
                                                       child: TextFormField(
+                                                        onChanged: (value) {
+                                                          // Trim the input and update the controller
+                                                          _PanCardController
+                                                                  .value =
+                                                              _PanCardController
+                                                                  .value
+                                                                  .copyWith(
+                                                            text: value.trim(),
+                                                            selection:
+                                                                TextSelection
+                                                                    .fromPosition(
+                                                              TextPosition(
+                                                                  offset: value
+                                                                      .trim()
+                                                                      .length),
+                                                            ),
+                                                          );
+                                                        },
                                                         controller:
                                                             _PanCardController,
                                                         decoration:
@@ -689,6 +779,24 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                                                 .circular(10),
                                                       ),
                                                       child: TextFormField(
+                                                        onChanged: (value) {
+                                                          // Trim the input and update the controller
+                                                          _MobileController
+                                                                  .value =
+                                                              _MobileController
+                                                                  .value
+                                                                  .copyWith(
+                                                            text: value.trim(),
+                                                            selection:
+                                                                TextSelection
+                                                                    .fromPosition(
+                                                              TextPosition(
+                                                                  offset: value
+                                                                      .trim()
+                                                                      .length),
+                                                            ),
+                                                          );
+                                                        },
                                                         controller:
                                                             _MobileController,
                                                         decoration:
@@ -724,6 +832,22 @@ class _EmployeeEditPageState extends State<EmployeeEditPage> {
                                                             10),
                                                   ),
                                                   child: TextFormField(
+                                                    onChanged: (value) {
+                                                      _PasswordController
+                                                              .value =
+                                                          _PasswordController
+                                                              .value
+                                                              .copyWith(
+                                                        text: value.trim(),
+                                                        selection: TextSelection
+                                                            .fromPosition(
+                                                          TextPosition(
+                                                              offset: value
+                                                                  .trim()
+                                                                  .length),
+                                                        ),
+                                                      );
+                                                    },
                                                     controller:
                                                         _PasswordController,
                                                     obscureText:

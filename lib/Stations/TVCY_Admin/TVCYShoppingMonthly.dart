@@ -7,6 +7,7 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 
 class TVCYShoppingProviderMonthly extends ChangeNotifier {
   int selectedIndex = 0;
@@ -52,7 +53,10 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -91,11 +95,15 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -241,6 +249,32 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
       if (data['mfn'] != null && data['mfn'].toString().isNotEmpty) {
         details.add(Text(
           'mfn: ${data['mfn']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -438,15 +472,7 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
     final DateTime endOfMonth =
         DateTime(selectedDate.year, selectedDate.month + 1, 0);
 
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
-
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
 
     return Column(
       children: [
@@ -465,7 +491,7 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -553,6 +579,10 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -569,6 +599,10 @@ class _TVCYShoppingPageMonthlyState extends State<TVCYShoppingPageMonthly>
           employeedata['pickup'],
           employeedata['shipment'],
           employeedata['mfn'],
+          employeedata['Helmet Adherence'],
+          employeedata['LM Read'],
+          employeedata['Login'],
+          employeedata['Cash Submitted'],
         ];
         rows.add(row);
       }
@@ -663,12 +697,7 @@ Future<void> fetchNewData() async {
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    // Store data as per your requirement
-    // Example: prefs.setString('someKey', data['someValue']);
-    // Replace 'someKey' and 'someValue' with your actual data keys and values
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

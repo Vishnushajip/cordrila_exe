@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -7,6 +6,8 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Widgets/Loaders/Spinner.dart';
 
 class ShoppingProviderMonthly extends ChangeNotifier {
   int selectedIndex = 0;
@@ -51,7 +52,10 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -90,11 +94,15 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -240,6 +248,32 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
       if (data['mfn'] != null && data['mfn'].toString().isNotEmpty) {
         details.add(Text(
           'mfn: ${data['mfn']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -425,54 +459,6 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
     }
   }
 
-  Future<void> _downloadAllData(BuildContext context) async {
-    try {
-      final List<List<dynamic>> rows = [];
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('userdata')
-          .where('mfn', isNotEqualTo: true)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        _showAlertDialog(
-            context, 'No Data Found', 'No data found in the database.');
-        return;
-      }
-
-      final headers = [
-        'ID',
-        'Name',
-        'Location',
-        'Date',
-        'Shift',
-        'Pickup',
-        'Shipment',
-        'MFN',
-      ];
-      rows.add(headers);
-
-      for (final doc in snapshot.docs) {
-        final employeedata = doc.data();
-        final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
-        ];
-        rows.add(row);
-      }
-
-      await _downloadCSV(context, rows, 'Shopping_all_data');
-    } catch (e) {
-      print('Error downloading all data: $e');
-    }
-  }
-
   Widget _buildMonthlyDataTab(BuildContext context) {
     final filterProvider = Provider.of<ShoppingProviderMonthly>(context);
     final DateTime? selectedDate = filterProvider.selectedDate;
@@ -485,15 +471,7 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
     final DateTime endOfMonth =
         DateTime(selectedDate.year, selectedDate.month + 1, 0);
 
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
-
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
 
     return Column(
       children: [
@@ -511,7 +489,7 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -598,6 +576,10 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -614,6 +596,10 @@ class _ShoppingPageMonthlyState extends State<ShoppingPageMonthly>
           employeedata['pickup'],
           employeedata['shipment'],
           employeedata['mfn'],
+          employeedata['Helmet Adherence'],
+          employeedata['LM Read'],
+          employeedata['Login'],
+          employeedata['Cash Submitted'],
         ];
         rows.add(row);
       }
@@ -699,21 +685,14 @@ Future<void> fetchNewData() async {
       storeDataInSharedPreferences(doc.data() as Map<String, dynamic>);
     } else {
       print('Document data is not of type Map<String, dynamic>: ${doc.id}');
-      // Handle the case where data is not as expected
     }
   }
 
-  // Update the last fetch time
   await storeLastFetchTime(DateTime.now());
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    // Store data as per your requirement
-    // Example: prefs.setString('someKey', data['someValue']);
-    // Replace 'someKey' and 'someValue' with your actual data keys and values
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

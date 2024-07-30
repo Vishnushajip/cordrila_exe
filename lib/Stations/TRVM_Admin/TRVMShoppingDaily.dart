@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -7,8 +6,8 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../Pages/transition.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 import 'TRVMShoppingMonthly.dart';
 import 'TRVM_Home.dart';
 
@@ -55,7 +54,10 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -94,11 +96,15 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -291,6 +297,32 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
 
       return details;
     }
@@ -323,15 +355,8 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -349,7 +374,7 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -551,6 +576,10 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -567,6 +596,10 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
           employeedata['pickup'],
           employeedata['shipment'],
           employeedata['mfn'],
+          employeedata['Helmet Adherence'],
+          employeedata['LM Read'],
+          employeedata['Login'],
+          employeedata['Cash Submitted'],
         ];
         rows.add(row);
       }
@@ -634,8 +667,6 @@ class _TRVMShoppingPageDailyState extends State<TRVMShoppingPageDaily>
       _showAlertDialog(context, 'Error', 'Error downloading CSV');
     }
   }
-
-
 
   void _showAlertDialog(BuildContext context, String title, String message,
       {bool success = false}) {

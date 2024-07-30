@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Pages/Admin_Shopping/Admin_shopping_monthly.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -8,8 +7,8 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../Pages/transition.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 import 'PNKP_Home.dart';
 
 class PNKPShoppingProviderDaily extends ChangeNotifier {
@@ -55,7 +54,10 @@ class _PNKPShoppingPageDailyState extends State<PNKPShoppingPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -94,11 +96,15 @@ class _PNKPShoppingPageDailyState extends State<PNKPShoppingPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -245,7 +251,7 @@ class _PNKPShoppingPageDailyState extends State<PNKPShoppingPageDaily>
     }
   }
 
-Widget _buildListItem(Map<String, dynamic> employeedata) {
+  Widget _buildListItem(Map<String, dynamic> employeedata) {
     List<Widget> buildEmployeeDetails(Map<String, dynamic> data) {
       List<Widget> details = [
         Text(
@@ -254,7 +260,7 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
               fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Date: ${_formatDateTime(data['Date'])}', // Format date here
+          'Date: ${_formatDateTime(data['Date'])}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ),
         Text(
@@ -273,6 +279,12 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['bags'] != null && data['bags'].toString().isNotEmpty) {
+        details.add(Text(
+          'bags: ${data['bags']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
       if (data['orders'] != null && data['orders'].toString().isNotEmpty) {
         details.add(Text(
           'orders: ${data['orders']}',
@@ -281,13 +293,19 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
       }
       if (data['cash'] != null && data['cash'].toString().isNotEmpty) {
         details.add(Text(
-          'Cash: ${data['cash']}',
+          'cash: ${data['cash']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
-      if (data['bags'] != null && data['bags'].toString().isNotEmpty) {
+      if (data['GSF'] != null && data['GSF'].toString().isNotEmpty) {
         details.add(Text(
-          'bags: ${data['bags']}',
+          'GSF: ${data['GSF']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -323,15 +341,8 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -357,7 +368,7 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -556,10 +567,12 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
         'Name',
         'Location',
         'Date',
-        'Shift',
-        'Pickup',
-        'Shipment',
-        'MFN',
+        'Time',
+        'bags',
+        'orders',
+        'cash',
+        'GSF',
+        'Login',
       ];
       rows.add(headers);
 
@@ -572,10 +585,12 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
           employeedata['Name'],
           employeedata['Location'],
           employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
+          employeedata['Time'],
+          employeedata['bags'],
+          employeedata['orders'],
+          employeedata['cash'],
+          employeedata['GSF'],
+          employeedata['Login'],
         ];
         rows.add(row);
       }
@@ -642,110 +657,6 @@ Widget _buildListItem(Map<String, dynamic> employeedata) {
       print('Error downloading CSV: $e');
       _showAlertDialog(context, 'Error', 'Error downloading CSV');
     }
-  }
-
-  Future<void> _downloadAllData(BuildContext context) async {
-    try {
-      final List<List<dynamic>> rows = [];
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('userdata')
-          .where('mfn', isNotEqualTo: true)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        _showAlertDialog(
-            context, 'No Data Found', 'No data found in the database.');
-        return;
-      }
-
-      final headers = [
-        'ID',
-        'Name',
-        'Location',
-        'Date',
-        'Shift',
-        'Pickup',
-        'Shipment',
-        'MFN',
-      ];
-      rows.add(headers);
-
-      for (final doc in snapshot.docs) {
-        final employeedata = doc.data();
-        final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
-        ];
-        rows.add(row);
-      }
-
-      await _downloadCSV(context, rows, 'Fresh_all_data');
-    } catch (e) {
-      print('Error downloading all data: $e');
-    }
-  }
-
-  Widget _buildMonthlyDataTab(BuildContext context) {
-    final filterProvider = Provider.of<PNKPShoppingProviderDaily>(context);
-    final DateTime? selectedDate = filterProvider.selectedDate;
-    if (selectedDate == null) {
-      return const SizedBox.shrink();
-    }
-
-    final DateTime startOfMonth =
-        DateTime(selectedDate.year, selectedDate.month);
-    final DateTime endOfMonth =
-        DateTime(selectedDate.year, selectedDate.month + 1, 0);
-
-    return Column(
-      children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('userdata')
-                .where('Date', isGreaterThanOrEqualTo: startOfMonth)
-                .where('Date', isLessThanOrEqualTo: endOfMonth)
-                .where('mfn', isNotEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              }
-              final documents = snapshot.data!.docs;
-              if (documents.isEmpty) {
-                return const Center(
-                  child: Text('No data found for the selected month.'),
-                );
-              }
-              return ListView.separated(
-                itemCount: documents.length,
-                itemBuilder: (context, index) {
-                  final employeedata =
-                      documents[index].data() as Map<String, dynamic>;
-                  return _buildListItem(employeedata);
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
-              );
-            },
-          ),
-        ),
-      ],
-    );
   }
 
   void _showAlertDialog(BuildContext context, String title, String message,

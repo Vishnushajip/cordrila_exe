@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -7,8 +6,8 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../../Pages/transition.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 import 'ALWDShoppingMonthly.dart';
 import 'ALWD_Home.dart';
 
@@ -53,7 +52,10 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -92,11 +94,15 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -289,6 +295,32 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
 
       return details;
     }
@@ -321,15 +353,8 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -347,7 +372,7 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -549,6 +574,10 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -565,6 +594,10 @@ class _ALWDShoppingPageDailyState extends State<ALWDShoppingPageDaily>
           employeedata['pickup'],
           employeedata['shipment'],
           employeedata['mfn'],
+          employeedata['Helmet Adherence'],
+          employeedata['LM Read'],
+          employeedata['Login'],
+          employeedata['Cash Submitted'],
         ];
         rows.add(row);
       }
@@ -713,9 +746,7 @@ Future<void> fetchNewData() async {
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-    
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

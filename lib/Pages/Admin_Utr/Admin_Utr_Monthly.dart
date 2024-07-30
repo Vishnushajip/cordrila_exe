@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
+
+import '../../Widgets/Loaders/Spinner.dart';
+
 
 class UtrProviderMonthly extends ChangeNotifier {
   int selectedIndex = 0;
@@ -437,7 +439,7 @@ class _AdminUtrMonthlyState extends State<AdminUtrMonthly>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {

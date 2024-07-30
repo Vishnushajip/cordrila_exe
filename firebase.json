@@ -1,1 +1,39 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"cordrila","appId":"1:861858508386:android:96bf051199bec920692b3b","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"cordrila","configurations":{"android":"1:861858508386:android:96bf051199bec920692b3b","ios":"1:861858508386:ios:22c871fdeb07b4e6692b3b","macos":"1:861858508386:ios:22c871fdeb07b4e6692b3b","web":"1:861858508386:web:00e6858950a57098692b3b","windows":"1:861858508386:web:38fe967ec2d37495692b3b"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "cordrila",
+          "appId": "1:861858508386:android:96bf051199bec920692b3b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "cordrila",
+          "configurations": {
+            "android": "1:861858508386:android:96bf051199bec920692b3b",
+            "ios": "1:861858508386:ios:22c871fdeb07b4e6692b3b",
+            "macos": "1:861858508386:ios:22c871fdeb07b4e6692b3b",
+            "web": "1:861858508386:web:00e6858950a57098692b3b",
+            "windows": "1:861858508386:web:38fe967ec2d37495692b3b"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}

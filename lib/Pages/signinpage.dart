@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -89,29 +88,28 @@ class _LoginPageState extends State<LoginPage> {
       loginProvider.setLoading(false);
     }
   }
-Future<bool> _checkPasswords(String empCode) async {
-  final QuerySnapshot querySnapshot =
-      await FirebaseFirestore.instance.collection('USERS')
-      .where('EmpCode', isEqualTo: empCode)
-      .get();
 
-  for (var doc in querySnapshot.docs) {
-    if (doc.exists) {
-      String password = doc['Password'];
-      if (password == 'LastMile##123') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ChangePasswordPage()),
-        );
-        return true;
+  Future<bool> _checkPasswords(String empCode) async {
+    final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection('USERS')
+        .where('EmpCode', isEqualTo: empCode)
+        .get();
+
+    for (var doc in querySnapshot.docs) {
+      if (doc.exists) {
+        String password = doc['Password'];
+        if (password == 'LastMile##123') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangePasswordPage()),
+          );
+          return true;
+        }
       }
     }
+
+    return false;
   }
-
-  return false;
-}
-
-
 
   void _showAlert() {
     showDialog(
@@ -331,22 +329,7 @@ Future<bool> _checkPasswords(String empCode) async {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 250),
-                    child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                              context,
-                              CupertinoDialogRoute(
-                                  builder: (context) => ChangePasswordPage(),
-                                  context: context));
-                        },
-                        child: Text(
-                          "Change Password",
-                          style: TextStyle(fontSize: 10, color: Colors.blue),
-                          selectionColor: Colors.blue,
-                        )),
-                  ),
+                  SizedBox(height: 20),
                   ElevatedButton(
                     onPressed:
                         loginProvider.isLoading ? null : () => _login(context),
@@ -361,10 +344,7 @@ Future<bool> _checkPasswords(String empCode) async {
                       ),
                     ),
                     child: loginProvider.isLoading
-                        ? CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          )
+                        ? CircularProgressIndicator()
                         : Text(
                             'Login',
                             style: TextStyle(color: Colors.white),
@@ -380,9 +360,6 @@ Future<bool> _checkPasswords(String empCode) async {
           if (loginProvider.isLoading)
             Container(
               color: Colors.black45,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
             ),
         ],
       ),

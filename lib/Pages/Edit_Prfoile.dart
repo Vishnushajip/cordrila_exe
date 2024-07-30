@@ -76,12 +76,16 @@ class _EditProfilePageState extends State<EditProfilePage> {
       Map<String, dynamic> userData = snapshot.data() as Map<String, dynamic>;
 
       _nameController.text = userData['Employee Name'] ?? ''.toUpperCase();
-      _idController.text = userData['EmpCode'] ?? ''.toUpperCase();;
-      _titleController.text = userData['Business Title'] ?? ''.toUpperCase();;
-      _emailController.text = userData['Mail ID'] ?? ''.toUpperCase();;
+      _idController.text = userData['EmpCode'] ?? ''.toUpperCase();
+      ;
+      _titleController.text = userData['Business Title'] ?? ''.toUpperCase();
+      ;
+      _emailController.text = userData['Mail ID'] ?? ''.toUpperCase();
+      ;
       _dobController.text = userData['DOB'] ?? ''.toUpperCase();
-      _panController.text = userData['PAN CARD'] ?? ''.toUpperCase();;
-      _mobileController.text = userData['Mobile Number']?? ''.toString()   ;
+      _panController.text = userData['PAN CARD'] ?? ''.toUpperCase();
+      ;
+      _mobileController.text = userData['Mobile Number'] ?? ''.toString();
       _categoryController.text = userData['Category'] ?? ''.toUpperCase();
       _typeController.text = userData['Location'] ?? ''.toUpperCase();
       _stationController.text = userData['StationCode'] ?? ''.toUpperCase();
@@ -95,7 +99,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
       // Perform Firestore query based on employee name
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('USERS')
-          .where('Employee Name', isEqualTo: searchName)
+          .where('EmpCode', isEqualTo: searchName)
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
@@ -425,7 +429,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
     );
   }
 
-   Widget buildTextField(
+  Widget buildTextField(
       TextEditingController controller, String hintText, Widget prefixIcon,
       {String? suffixText, Widget? suffixIcon}) {
     return Padding(
@@ -433,6 +437,14 @@ class _EditProfilePageState extends State<EditProfilePage> {
       child: SizedBox(
         width: 400,
         child: TextField(
+          onChanged: (value) {
+            controller.value = controller.value.copyWith(
+              text: value.trim(),
+              selection: TextSelection.fromPosition(
+                TextPosition(offset: value.trim().length),
+              ),
+            );
+          },
           inputFormatters: [
             UpperCaseTextFormatter(),
           ],

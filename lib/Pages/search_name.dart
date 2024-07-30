@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'package:cordrila_exe/Pages/ChangeAdminPassword.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cordrila_exe/Pages/Add_emp.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,32 +11,29 @@ import 'Edit_Prfoile.dart';
 class UserProvider with ChangeNotifier {
   final TextEditingController searchController = TextEditingController();
   List<DocumentSnapshot> _searchResults = [];
-  bool _isExpanded = false;
   String _searchQuery = '';
 
   List<DocumentSnapshot> get searchResults => _searchResults;
-  bool get isExpanded => _isExpanded;
   String get searchQuery => _searchQuery;
 
   UserProvider() {
-    searchController.addListener(_searchEmployee);
+    searchController.addListener(() {
+      print('Search query updated: ${searchController.text}');
+      setSearchQuery(searchController.text);
+    });
     _fetchAllUsers();
   }
 
   @override
   void dispose() {
-    searchController.removeListener(_searchEmployee);
     searchController.dispose();
     super.dispose();
   }
 
-  void toggleExpand() {
-    _isExpanded = !_isExpanded;
-    notifyListeners();
-  }
-
   void setSearchQuery(String query) {
+    print('Setting search query: $query');
     _searchQuery = query.trim().toUpperCase();
+    _searchEmployee(); // Trigger search whenever search query changes
     notifyListeners();
   }
 
@@ -42,29 +42,86 @@ class UserProvider with ChangeNotifier {
       QuerySnapshot querySnapshot =
           await FirebaseFirestore.instance.collection('USERS').get();
       _searchResults = querySnapshot.docs;
+
+      // Convert _searchResults to a list of maps
+      List<Map<String, dynamic>> usersData = _searchResults
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      // Save data to SharedPreferences
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('usersData', jsonEncode(usersData));
+      print('Data saved to SharedPreferences'); // Debug print
+
       notifyListeners();
     } catch (e) {
       print('Error fetching users: $e');
     }
   }
 
-  void _searchEmployee() async {
-    String searchName = _searchQuery;
+  Future<List<Map<String, dynamic>>> _getSavedUsers() async {
+    try {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? usersDataString = prefs.getString('usersData');
 
-    if (searchName.isNotEmpty) {
+      if (usersDataString != null) {
+        List<dynamic> usersDataList = jsonDecode(usersDataString);
+        return usersDataList
+            .map((item) => item as Map<String, dynamic>)
+            .toList();
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print('Error retrieving data from SharedPreferences: $e');
+      return [];
+    }
+  }
+
+  void _searchEmployee() async {
+    String searchQuery = _searchQuery.trim();
+
+    print('Searching for: $searchQuery');
+
+    if (searchQuery.isNotEmpty) {
       try {
-        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        QuerySnapshot querySnapshotByName = await FirebaseFirestore.instance
             .collection('USERS')
-            .where('Employee Name', isGreaterThanOrEqualTo: searchName)
-            .where('Employee Name', isLessThanOrEqualTo: '$searchName\uf8ff')
+            .where('Employee Name', isGreaterThanOrEqualTo: searchQuery)
+            .where('Employee Name', isLessThanOrEqualTo: searchQuery + '\uf8ff')
             .get();
 
-        _searchResults = querySnapshot.docs;
+        QuerySnapshot querySnapshotByEmpCode = await FirebaseFirestore.instance
+            .collection('USERS')
+            .where('EmpCode', isEqualTo: searchQuery)
+            .get();
+
+        // Combine results from both queries
+        Set<DocumentSnapshot> combinedResults = {
+          ...querySnapshotByName.docs,
+          ...querySnapshotByEmpCode.docs,
+        };
+
+        print('Number of documents found: ${combinedResults.length}');
+
+        _searchResults = combinedResults.toList();
+
+        // Convert _searchResults to a list of maps
+        List<Map<String, dynamic>> usersData = _searchResults
+            .map((doc) => doc.data() as Map<String, dynamic>)
+            .toList();
+
+        // Save data to SharedPreferences
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('usersData', jsonEncode(usersData));
+        print('Data saved to SharedPreferences'); // Debug print
+
         notifyListeners();
       } catch (e) {
         print('Error searching employees: $e');
       }
     } else {
+      print('Search query is empty, fetching all users.');
       _fetchAllUsers();
     }
   }
@@ -108,19 +165,46 @@ class SearchUser extends StatelessWidget {
 
     void _deleteDocument(String documentId) async {
       try {
-        await FirebaseFirestore.instance
+        // Fetch the document to get the empCode
+        DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
             .collection('USERS')
             .doc(documentId)
-            .delete();
-        // Show a success message or update UI as needed
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Document deleted successfully'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-        // Refresh the search results after deletion
-        userProvider._fetchAllUsers();
+            .get();
+
+        // Check if the document exists and data is not null
+        if (documentSnapshot.exists && documentSnapshot.data() != null) {
+          // Cast the data to a Map
+          Map<String, dynamic> data =
+              documentSnapshot.data() as Map<String, dynamic>;
+
+          // Get the empCode from the document data
+          String empCode = data['empCode'];
+
+          // Delete the document
+          await FirebaseFirestore.instance
+              .collection('USERS')
+              .doc(documentId)
+              .delete();
+
+          // Show a snackbar with the empCode of the deleted document
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content:
+                  Text('Document with empCode $empCode deleted successfully'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+
+          // Fetch all users again
+          userProvider._fetchAllUsers();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Document does not exist or data is null'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       } catch (e) {
         // Show an error message if deletion fails
         ScaffoldMessenger.of(context).showSnackBar(
@@ -132,101 +216,181 @@ class SearchUser extends StatelessWidget {
       }
     }
 
-    void _showDeleteConfirmationDialog(String documentId) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-              title: Text(
-              'Confirm Deletion',
-              style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold),
-            ),
-            content: Text('Are you sure to delete this document?',
-                style: TextStyle(color: Colors.black)),
-            actions: <Widget>[
-              TextButton(
-                child: Text('Cancel', style: TextStyle(color: Colors.black)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              TextButton(
-                child: Text('Delete', style: TextStyle(color: Colors.red)),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  _deleteDocument(documentId);
-                },
-              ),
-            ],
+    void _showDeleteConfirmationDialog(String documentId) async {
+      try {
+        // Fetch the document to get the empCode
+        DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
+            .collection('USERS')
+            .doc(documentId)
+            .get();
+
+        // Check if the document exists and data is not null
+        if (documentSnapshot.exists && documentSnapshot.data() != null) {
+          // Cast the data to a Map
+          Map<String, dynamic> data =
+              documentSnapshot.data() as Map<String, dynamic>;
+
+          // Get the empCode from the document data
+          String empCode = data['Employee Name'];
+
+          // Show the confirmation dialog with the empCode
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                title: Text(
+                  'Confirm Deletion',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold),
+                ),
+                content: Text('Delete $empCode Permanently?',
+                    style: TextStyle(color: Colors.black)),
+                actions: <Widget>[
+                  TextButton(
+                    child:
+                        Text('Cancel', style: TextStyle(color: Colors.black)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                  TextButton(
+                    child: Text('Delete', style: TextStyle(color: Colors.red)),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      _deleteDocument(documentId);
+                    },
+                  ),
+                ],
+              );
+            },
           );
-        },
-      );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Document does not exist or data is null'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to fetch document: $e'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         actions: [
-          Tooltip(
-              message: "Add Employee",
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: IconButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          CupertinoDialogRoute(
-                              builder: (context) => EmployeeEditPage(),
-                              context: context));
-                    },
-                    icon: Icon(
-                      Icons.add,
-                      color: Colors.blue,
-                      size: 30,
-                    )),
-              ))
+          IconButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return SimpleDialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    title: const Text(
+                      'Settings',
+                      style: TextStyle(color: Colors.black, fontSize: 30),
+                    ),
+                    children: <Widget>[
+                      SimpleDialogOption(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              CupertinoDialogRoute(
+                                  builder: (context) => ChangePasswordPage(),
+                                  context: context));
+                        },
+                        child: const Text('Change Password'),
+                      ),
+                      SimpleDialogOption(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              CupertinoDialogRoute(
+                                  builder: (context) => EmployeeEditPage(),
+                                  context: context));
+                        },
+                        child: const Text('Add User'),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Center(
+                        child: TextButton(
+                          style: ElevatedButton.styleFrom(
+                              shape: StadiumBorder(),
+                              backgroundColor: Colors.blue),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text(
+                            'Ok',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            icon: Icon(
+              Icons.settings_sharp,
+              color: Colors.blue,
+            ),
+          ),
         ],
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         centerTitle: true,
         toolbarHeight: 70,
-        title: Container(
-          width: 500,
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                spreadRadius: 1,
-              ),
-            ],
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: userProvider.searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Search',
-                    border: InputBorder.none,
+        title: Tooltip(
+          message: "Enter ID or Name",
+          child: Container(
+            width: 500,
+            margin: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: const [
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: userProvider.searchController,
+                    decoration: const InputDecoration(
+                      hintText: 'Search',
+                      border: InputBorder.none,
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.blue),
-                onPressed: userProvider._searchEmployee,
-              ),
-            ],
+                IconButton(
+                  icon: const Icon(Icons.search, color: Colors.blue),
+                  onPressed: userProvider._searchEmployee,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -265,8 +429,8 @@ class SearchUser extends StatelessWidget {
                                   MaterialPageRoute(
                                     builder: (context) => EditProfilePage(
                                       initialData: doc,
-                                      initialId: data['Employee Name'],
-                                      initialSearchTerm: data['Employee Name'],
+                                      initialId: data['EmpCode'],
+                                      initialSearchTerm: data['EmpCode'],
                                     ),
                                   ),
                                 );

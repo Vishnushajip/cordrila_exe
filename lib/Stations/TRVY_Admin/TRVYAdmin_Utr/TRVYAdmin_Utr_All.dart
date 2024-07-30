@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../Widgets/Loaders/Spinner.dart';
 import 'TRVYAdmin_Utr_Monthly.dart';
 import 'TRVYAdmin_Utr_daily.dart';
 
@@ -183,7 +183,7 @@ class _TRVYAdminUtrAllState extends State<TRVYAdminUtrAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));

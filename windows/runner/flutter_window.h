@@ -11,9 +11,10 @@
 // A window that does nothing but host a Flutter view.
 class FlutterWindow : public Win32Window {
  public:
-  // Creates a new FlutterWindow hosting a Flutter view running |project|.
   explicit FlutterWindow(const flutter::DartProject& project);
   virtual ~FlutterWindow();
+  
+  HWND GetHandle() const { return hwnd_; }
 
  protected:
   // Win32Window:
@@ -28,6 +29,9 @@ class FlutterWindow : public Win32Window {
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
+
+  // The window handle.
+  HWND hwnd_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

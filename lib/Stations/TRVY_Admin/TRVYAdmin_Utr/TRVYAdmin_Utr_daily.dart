@@ -7,6 +7,7 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../Pages/transition.dart';
+import '../../../Widgets/Loaders/Spinner.dart';
 import '../TRVY_Home.dart';
 import 'TRVYAdmin_Utr_Monthly.dart';
 
@@ -320,7 +321,7 @@ class _TRVYAdminUtrDailyState extends State<TRVYAdminUtrDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: CircularProgressIndicator(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {

@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../Widgets/Loaders/Spinner.dart';
 import 'TRVYShoppingDaily.dart';
 import 'TRVYShoppingMonthly.dart';
 
@@ -183,7 +183,7 @@ class _TRVYShoppingPageAllState extends State<TRVYShoppingPageAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -246,6 +246,32 @@ class _TRVYShoppingPageAllState extends State<TRVYShoppingPageAll>
       if (data['mfn'] != null && data['mfn'].toString().isNotEmpty) {
         details.add(Text(
           'mfn: ${data['mfn']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -350,6 +376,10 @@ class _TRVYShoppingPageAllState extends State<TRVYShoppingPageAll>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -364,6 +394,10 @@ class _TRVYShoppingPageAllState extends State<TRVYShoppingPageAll>
           employeedata['pickup'],
           employeedata['shipment'],
           employeedata['mfn'],
+          employeedata['Helmet Adherence'],
+          employeedata['LM Read'],
+          employeedata['Login'],
+          employeedata['Cash Submitted'],
         ];
         rows.add(row);
       }

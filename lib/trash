@@ -1,33 +1,351 @@
-Container(
-          width: 500,
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            boxShadow: const [
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10,
-                spreadRadius: 1,
+import 'package:cordrila_exe/Pages/Admin_Shopping/Admin_shopping_All.dart';
+import 'package:cordrila_exe/Pages/signinpage.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:badges/badges.dart' as badges;
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'Admin_Utr/Admin_Utr_All.dart';
+import 'Admin_fresh/Admin_fresh_All.dart';
+import 'Admin_req.dart';
+import 'search_name.dart';
+
+
+class HomePageProvider with ChangeNotifier {
+  int _selectedIndex = 0;
+
+  int get selectedIndex => _selectedIndex;
+
+  void setSelectedIndex(int index) {
+    _selectedIndex = index;
+    notifyListeners();
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [
+          NavigationRailTheme(
+            data: NavigationRailThemeData(
+              groupAlignment: -1.0,
+              indicatorColor: const Color.fromARGB(255, 32, 32, 32),
+              backgroundColor: const Color.fromARGB(255, 32, 32, 32),
+              elevation: 40,
+              selectedIconTheme: IconThemeData(
+                size: 50.w,
+                color: Colors.blue,
               ),
-            ],
-          ),
-          child: Row(
-            children: <Widget>[
-              Expanded(
-                child: TextField(
-                  controller: userProvider.searchController,
-                  decoration: const InputDecoration(
-                    hintText: 'Search',
-                    border: InputBorder.none,
+              unselectedIconTheme: IconThemeData(
+                size: 50.w,
+                color: Colors.white,
+              ),
+              labelType: NavigationRailLabelType.all,
+            ),
+            child: Consumer<HomePageProvider>(
+              builder: (context, provider, child) => NavigationRail(
+                trailing: Padding(
+                  padding: EdgeInsets.only(top: 50.h, right: 40.w),
+                  child: Column(
+                    children: [
+                      Text(
+                        _getFormattedDate(),
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        _getFormattedTime(),
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                leading: SizedBox(
+                  height: 150.h,
+                  child: Column(
+                    children: [
+                      SizedBox(height: 25.h),
+                      Row(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.all(8.w),
+                            child: const CircleAvatar(
+                              backgroundImage: AssetImage("assets/AppIcon.jpg"),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.all(8.w),
+                            child: GestureDetector(
+                              onDoubleTap: () {
+                                Navigator.push(
+                                  context,
+                                  CupertinoDialogRoute(
+                                    builder: (context) => const LoginPage(),
+                                    context: context,
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Cordrila",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 30.sp,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                minWidth: 200.w,
+                selectedIndex: provider.selectedIndex,
+                onDestinationSelected: (index) {
+                  provider.setSelectedIndex(index);
+                },
+                destinations: [
+                  NavigationRailDestination(
+                    icon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: ImageIcon(
+                            size: 20.w,
+                            const AssetImage("assets/human.png"),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: const Text(
+                            'Edit Profile',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    selectedIcon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: ImageIcon(
+                            size: 20.w,
+                            color: Colors.white,
+                            const AssetImage("assets/human.png"),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: Text(
+                            'Edit Profile',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    label: const Text(''),
+                  ),
+                  NavigationRailDestination(
+                    icon: Row(
+                      children: [
+                        Icon(
+                          Icons.shopping_bag_outlined,
+                          size: 20.w,
+                          color: Colors.white,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: const Text(
+                            '  Shopping',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    selectedIcon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: Icon(
+                            Icons.shopping_bag_outlined,
+                            size: 20.w,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: Text(
+                            '  Shopping ',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    label: const Text(''),
+                  ),
+                  NavigationRailDestination(
+                    icon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.all(8.w),
+                          child: Icon(
+                            Icons.local_grocery_store_outlined,
+                            size: 20.w,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Text(
+                          '  Fresh         ',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    selectedIcon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: Icon(
+                            Icons.local_grocery_store_outlined,
+                            size: 20.w,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const Text(
+                          '    Fresh       ',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                    label: const Text(''),
+                  ),
+                  NavigationRailDestination(
+                    icon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: Icon(
+                            Icons.people_alt_outlined,
+                            size: 20.w,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const Text(
+                          '    UTR           ',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                    selectedIcon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: Icon(
+                            Icons.people_alt_outlined,
+                            size: 20.w,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        const Text(
+                          '   UTR           ',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ],
+                    ),
+                    label: const Text(''),
+                  ),
+                  NavigationRailDestination(
+                    icon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: const Icon(
+                            Icons.notifications,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ),
+                        badges.Badge(
+                          badgeContent: Text(
+                            '1',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 5),
+                          ),
+                          child: const Text(
+                            ' Notifications',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                    selectedIcon: Row(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 1.w),
+                          child: const Icon(
+                            Icons.notifications,
+                            size: 20,
+                            color: Colors.blue,
+                          ),
+                        ),
+                        badges.Badge(
+                          badgeContent: Text(
+                            '1',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                          child: const Text(
+                            ' Notifications',
+                            style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                      ],
+                    ),
+                    label: const Text(''),
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.search, color: Colors.blue),
-                onPressed: userProvider._searchEmployee,
-              ),
-            ],
+            ),
           ),
-        ),
+          const VerticalDivider(thickness: 1, width: 1),
+          Expanded(
+            child: Consumer<HomePageProvider>(
+              builder: (context, provider, child) => IndexedStack(
+                index: provider.selectedIndex,
+                children: const [
+                  SearchUser(),
+                  ShoppingPageAll(),
+                  FreshFilterPageAll(),
+                  AdminUtrAll(),
+                  AdminRequestPage(),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _getFormattedDate() {
+    DateTime now =
+        DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    return DateFormat('dd MMM yyyy').format(now);
+  }
+
+  String _getFormattedTime() {
+    DateTime now =
+        DateTime.now().toUtc().add(const Duration(hours: 5, minutes: 30));
+    return DateFormat('hh:mm').format(now);
+  }
+}

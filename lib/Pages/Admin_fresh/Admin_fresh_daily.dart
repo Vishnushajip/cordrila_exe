@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Pages/Admin_fresh/Admin_fresh_monthly.dart';
 import 'package:cordrila_exe/Pages/Homepage.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -10,6 +9,7 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../Widgets/Loaders/Spinner.dart';
 import '../transition.dart';
 
 class FreshFilterProviderDaily extends ChangeNotifier {
@@ -55,7 +55,12 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
+        print('Search Query: $_searchQuery');
       });
+      _searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -63,6 +68,7 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
   void dispose() {
     _tabController.dispose();
     _searchController.dispose();
+
     super.dispose();
   }
 
@@ -94,11 +100,15 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: "Enter Full Name",
+                      child: TextField(
+                        textCapitalization: TextCapitalization.words,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -191,13 +201,10 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
         Provider.of<FreshFilterProviderDaily>(context, listen: false);
     return TextButton(
       onPressed: () {
-        // Set the selected index
         filterProvider.setIndex(index);
 
-        // Reset selected date when switching tabs
         filterProvider.setDate(null);
 
-        // Reset selected month when switching to the Daily tab
         if (index == 1) {
           filterProvider.setMonth(null);
         }
@@ -227,11 +234,10 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
                   CircleAvatar(
                     backgroundImage: AssetImage("assets/error.gif"),
                     radius: 50,
-                    // Customize as needed
                   ),
                   SizedBox(height: 20),
                   Text(
-                    'Select a date!', // Customize text as needed
+                    'Select a date!',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 18,
@@ -254,7 +260,7 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
               fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Date: ${_formatDateTime(data['Date'])}', // Format date here
+          'Date: ${_formatDateTime(data['Date'])}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ),
         Text(
@@ -291,6 +297,18 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['GSF'] != null && data['GSF'].toString().isNotEmpty) {
+        details.add(Text(
+          'GSF: ${data['GSF']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
 
       return details;
     }
@@ -323,15 +341,8 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -347,8 +358,8 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: SpinnerWidget(),
+                return  Center(
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -386,9 +397,8 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
               child: const Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.download, color: Colors.blue), // Download icon
-                  SizedBox(
-                      width: 8), // Add some space between the icon and the text
+                  Icon(Icons.download, color: Colors.blue),
+                  SizedBox(width: 8),
                   Text(
                     'Download',
                     style: TextStyle(
@@ -470,16 +480,15 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
               colorScheme: const ColorScheme.dark(
                 brightness: Brightness.light,
                 surface: Colors.white,
-                primary: Colors.black, // header background color
-                onPrimary: Colors.white, // header text color
-                onSurface: Colors.black, // body text color
+                primary: Colors.black,
+                onPrimary: Colors.white,
+                onSurface: Colors.black,
               ),
               textButtonTheme: TextButtonThemeData(
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.only(
                       bottom: 5, left: 5, right: 5, top: 5),
                   foregroundColor: Colors.black,
-                  // OK button background color// button text color
                 ),
               ),
             ),
@@ -505,7 +514,6 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
     );
 
     if (pickedDate != null && pickedDate != filterProvider.selectedDate) {
-      // Reset selected date to null
       filterProvider.setDate(null);
       filterProvider.setDate(pickedDate);
     }
@@ -549,12 +557,13 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
         'bags',
         'orders',
         'cash',
+        'GSF',
+        'Login',
       ];
       rows.add(headers);
 
       for (final doc in snapshot.docs) {
         final employeedata = doc.data();
-        // Convert Timestamp to DateTime and format it in 12-hour format with AM/PM
         DateFormat('dd-MM-yyyy hh:mm').format(employeedata['Date'].toDate());
         final row = [
           employeedata['ID'],
@@ -565,12 +574,14 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
           employeedata['bags'],
           employeedata['orders'],
           employeedata['cash'],
+          employeedata['GSF'],
+          employeedata['Login'],
         ];
         rows.add(row);
       }
 
-      final formattedDate = DateFormat('dd_MM_yyyy_HH_mm_ss')
-          .format(DateTime.now()); // Format current date and time for file name
+      final formattedDate =
+          DateFormat('dd_MM_yyyy_HH_mm_ss').format(DateTime.now());
       await _downloadCSV(context, rows, 'Fresh_daily_data_$formattedDate');
     } catch (e) {
       print('Error downloading data: $e');
@@ -579,10 +590,8 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
   }
 
   Future<String> _getDownloadDirectory() async {
-    // Define the directory on the C drive
     const String downloadDirectory = 'C:\\Downloads';
 
-    // Create the directory if it doesn't exist
     final Directory directory = Directory(downloadDirectory);
     if (!directory.existsSync()) {
       directory.createSync(recursive: true);
@@ -595,22 +604,18 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
       BuildContext context, List<List<dynamic>> rows, String fileName) async {
     try {
       final String downloadDirectory = await _getDownloadDirectory();
-      DateTime.now().millisecondsSinceEpoch.toString(); // Unique timestamp
+      DateTime.now().millisecondsSinceEpoch.toString();
       final String filePath = '$downloadDirectory/$fileName.csv';
 
       final List<List<dynamic>> formattedRows = [];
 
-      // Convert each row to ensure proper date format
       for (final row in rows) {
-        final List<dynamic> formattedRow =
-            List.from(row); // Make a copy of the original row
+        final List<dynamic> formattedRow = List.from(row);
 
-        // Format the 'Date' column if it exists in your data
         if (formattedRow.length > 3 && formattedRow[3] is Timestamp) {
           final Timestamp timestamp = formattedRow[3] as Timestamp;
           final DateTime date = timestamp.toDate();
-          formattedRow[3] = DateFormat('dd-MM-yyyy HH:mm:ss')
-              .format(date); // Format the date as needed
+          formattedRow[3] = DateFormat('dd-MM-yyyy HH:mm:ss').format(date);
         }
 
         formattedRows.add(formattedRow);
@@ -630,196 +635,6 @@ class _FreshFilterPageDailyState extends State<FreshFilterPageDaily>
     } catch (e) {
       print('Error downloading CSV: $e');
       _showAlertDialog(context, 'Error', 'Error downloading CSV');
-    }
-  }
-
-  Future<void> _downloadAllData(BuildContext context) async {
-    try {
-      final List<List<dynamic>> rows = [];
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('userdata')
-          .where('bags', isNotEqualTo: true)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        _showAlertDialog(
-            context, 'No Data Found', 'No data found in the database.');
-        return;
-      }
-
-      final headers = [
-        'ID',
-        'Name',
-        'Location',
-        'Date',
-        'Time',
-        'bags',
-        'orders',
-        'cash',
-      ];
-      rows.add(headers);
-
-      for (final doc in snapshot.docs) {
-        final employeedata = doc.data();
-        final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['Time'],
-          employeedata['bags'],
-          employeedata['orders'],
-          employeedata['cash'],
-        ];
-        rows.add(row);
-      }
-
-      await _downloadCSV(context, rows, 'fresh_all_data');
-    } catch (e) {
-      print('Error downloading all data: $e');
-    }
-  }
-
-  Widget _buildMonthlyDataTab(BuildContext context) {
-    final filterProvider = Provider.of<FreshFilterProviderDaily>(context);
-    final DateTime? selectedDate = filterProvider.selectedDate;
-    if (selectedDate == null) {
-      return const SizedBox.shrink();
-    }
-
-    final DateTime startOfMonth =
-        DateTime(selectedDate.year, selectedDate.month);
-    final DateTime endOfMonth =
-        DateTime(selectedDate.year, selectedDate.month + 1, 0);
-
-    return Column(
-      children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('userdata')
-                .where('Date', isGreaterThanOrEqualTo: startOfMonth)
-                .where('Date', isLessThanOrEqualTo: endOfMonth)
-                .where('bags', isNotEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: SpinnerWidget(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              }
-              final documents = snapshot.data!.docs;
-              if (documents.isEmpty) {
-                return const Center(
-                  child: Text('No data found for the selected month.'),
-                );
-              }
-              return ListView.separated(
-                itemCount: documents.length,
-                itemBuilder: (context, index) {
-                  final employeedata =
-                      documents[index].data() as Map<String, dynamic>;
-                  return _buildListItem(employeedata);
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
-              );
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Align(
-            alignment: Alignment.bottomRight,
-            child: TextButton(
-              onPressed: () async {
-                _downloadMonthlyData(context, startOfMonth);
-              },
-              child: const Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.download, color: Colors.blue), // Download icon
-                  SizedBox(
-                      width: 8), // Add some space between the icon and the text
-                  Text(
-                    'Download',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Future<void> _downloadMonthlyData(
-      BuildContext context, DateTime month) async {
-    try {
-      final List<List<dynamic>> rows = [];
-
-      final DateTime startOfMonth = DateTime(month.year, month.month, 1);
-      final DateTime endOfMonth = DateTime(month.year, month.month + 1, 0);
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('userdata')
-          .where('Date', isGreaterThanOrEqualTo: startOfMonth)
-          .where('Date', isLessThanOrEqualTo: endOfMonth)
-          .where('bags', isNotEqualTo: true)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        _showAlertDialog(
-            context, 'No Data Found', 'No data found for the selected month.');
-        return;
-      }
-
-      final headers = [
-        'ID',
-        'Name',
-        'Location',
-        'Date',
-        'Time',
-        'bags',
-        'orders',
-        'cash',
-      ];
-      rows.add(headers);
-
-      for (final doc in snapshot.docs) {
-        final employeedata = doc.data();
-        // Convert Timestamp to DateTime and format it in 12-hour format with AM/PM
-        DateFormat('dd-MM-yyyy hh:mm_ss').format(employeedata['Date'].toDate());
-        final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['Time'],
-          employeedata['bags'],
-          employeedata['orders'],
-          employeedata['cash'],
-        ];
-        rows.add(row);
-      }
-
-      final formattedMonth =
-          DateFormat('dd_MM_yyyy_HH_mm_ss').format(DateTime.now());
-      await _downloadCSV(
-          context, rows, 'Fresh_monthly_data_$formattedMonth.csv');
-    } catch (e) {
-      print('Error downloading monthly data: $e');
-      _showAlertDialog(context, 'Error', 'Error downloading monthly data');
     }
   }
 
@@ -887,28 +702,19 @@ Future<void> fetchNewData() async {
         await FirebaseFirestore.instance.collection('userdata').get();
   }
 
-  // Process the new data
   for (var doc in querySnapshot.docs) {
-    // Ensure doc.data() is not null and of the expected type
     if (doc.exists && doc.data() is Map<String, dynamic>) {
       storeDataInSharedPreferences(doc.data() as Map<String, dynamic>);
     } else {
       print('Document data is not of type Map<String, dynamic>: ${doc.id}');
-      // Handle the case where data is not as expected
     }
   }
 
-  // Update the last fetch time
   await storeLastFetchTime(DateTime.now());
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-    final prefs = await SharedPreferences.getInstance();
-    // Store data as per your requirement
-    // Example: prefs.setString('someKey', data['someValue']);
-    // Replace 'someKey' and 'someValue' with your actual data keys and values
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Stations/TVM_Admin/PNTVFreshDaily.dart';
 import 'package:cordrila_exe/Stations/TVM_Admin/PNTVShoppingMonthly.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +8,8 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../Widgets/Loaders/Spinner.dart';
 
 class PNTVShoppingProviderAll extends ChangeNotifier {
   int selectedIndex = 0;
@@ -192,7 +193,7 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: SpinnerWidget());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -222,7 +223,7 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
               fontSize: 15, color: Colors.black, fontWeight: FontWeight.bold),
         ),
         Text(
-          'Date: ${_formatDateTime(data['Date'])}', 
+          'Date: ${_formatDateTime(data['Date'])}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ),
         Text(
@@ -241,6 +242,12 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['bags'] != null && data['bags'].toString().isNotEmpty) {
+        details.add(Text(
+          'bags: ${data['bags']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
       if (data['orders'] != null && data['orders'].toString().isNotEmpty) {
         details.add(Text(
           'orders: ${data['orders']}',
@@ -249,13 +256,19 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
       }
       if (data['cash'] != null && data['cash'].toString().isNotEmpty) {
         details.add(Text(
-          'Cash: ${data['cash']}',
+          'cash: ${data['cash']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
-      if (data['bags'] != null && data['bags'].toString().isNotEmpty) {
+      if (data['GSF'] != null && data['GSF'].toString().isNotEmpty) {
         details.add(Text(
-          'bags: ${data['bags']}',
+          'GSF: ${data['GSF']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -365,10 +378,12 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
         'Name',
         'Location',
         'Date',
-        'Shift',
-        'Pickup',
-        'Shipment',
-        'MFN',
+        'Time',
+        'bags',
+        'orders',
+        'cash',
+        'GSF',
+        'Login',
       ];
       rows.add(headers);
 
@@ -379,10 +394,12 @@ class _PNTVShoppingPageAllState extends State<PNTVShoppingPageAll>
           employeedata['Name'],
           employeedata['Location'],
           employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
+          employeedata['Time'],
+          employeedata['bags'],
+          employeedata['orders'],
+          employeedata['cash'],
+          employeedata['GSF'],
+          employeedata['Login'],
         ];
         rows.add(row);
       }
@@ -474,10 +491,7 @@ Future<void> fetchNewData() async {
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
   try {
-    final prefs = await SharedPreferences.getInstance();
-    // Store data as per your requirement
-    // Example: prefs.setString('someKey', data['someValue']);
-    // Replace 'someKey' and 'someValue' with your actual data keys and values
+  
   } catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }

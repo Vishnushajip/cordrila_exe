@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Pages/Admin_fresh/Admin_fresh_monthly.dart';
 import 'package:cordrila_exe/Pages/Homepage.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -9,7 +8,7 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../Widgets/Loaders/Spinner.dart';
 import '../transition.dart';
 
 class UtrProviderDaily extends ChangeNotifier {
@@ -322,7 +321,7 @@ class _AdminUtrDailyState extends State<AdminUtrDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -664,7 +663,7 @@ class _AdminUtrDailyState extends State<AdminUtrDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -853,7 +852,6 @@ Future<void> fetchNewData() async {
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
   try {
-    final prefs = await SharedPreferences.getInstance();
     // Store data as per your requirement
     // Example: prefs.setString('someKey', data['someValue']);
     // Replace 'someKey' and 'someValue' with your actual data keys and values

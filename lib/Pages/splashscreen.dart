@@ -1,10 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cordrila_exe/Widgets/Loaders/Circle_Loader.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:provider/provider.dart';
-import '../Widgets/Loaders/Loader.dart';
 import '../controller/Welcome_message.dart';
 import '../main.dart';
 
@@ -37,7 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
           .get();
 
       if (snapshot.exists) {
-        bool updateRequired = snapshot.get('RemoteV4');
+        bool updateRequired = snapshot.get('RemoteV7');
         if (updateRequired) {
           showUpdateAlert(
               'https://firebasestorage.googleapis.com/v0/b/cordrila.appspot.com/o/Cordrila.exe?alt=media&token=e955d9b9-7fce-47a8-82c3-d89ba556f771');
@@ -67,7 +67,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 title: Text('Good News', style: TextStyle(fontSize: 20)),
-                content: const Text("Version 1.2.4 Available"),
+                content: const Text("Version 1.2.7. Available"),
                 actions: [
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -244,8 +244,7 @@ class _SplashScreenState extends State<SplashScreen> {
               height: 500,
               width: 550,
             ),
-          
-            if (welcomeMessageProvider.isLoading) SpinnerWidget(),
+            if (welcomeMessageProvider.isLoading) CircleLoader(),
             SizedBox(height: 20),
             Text(
               '${(_progress * 100).toStringAsFixed(1)}%',

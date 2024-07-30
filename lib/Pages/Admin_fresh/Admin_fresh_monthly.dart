@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -7,6 +6,7 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 
 class FreshFilterProviderMonthly extends ChangeNotifier {
   int selectedIndex = 0;
@@ -51,6 +51,10 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
       setState(() {
         _searchQuery = _searchController.text;
       });
+      _searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -89,11 +93,15 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -239,6 +247,18 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
       if (data['cash'] != null && data['cash'].toString().isNotEmpty) {
         details.add(Text(
           'cash: ${data['cash']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['GSF'] != null && data['GSF'].toString().isNotEmpty) {
+        details.add(Text(
+          'GSF: ${data['GSF']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -436,15 +456,9 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
     final DateTime endOfMonth =
         DateTime(selectedDate.year, selectedDate.month + 1, 0);
 
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+        String transformedSearchQuery = _searchQuery;
+
 
     return Column(
       children: [
@@ -461,8 +475,8 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: SpinnerWidget(),
+                return  Center(
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -549,6 +563,8 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
         'bags',
         'orders',
         'cash',
+        'GSF',
+        'Login',
       ];
       rows.add(headers);
 
@@ -565,6 +581,8 @@ class _AdminFreshMonthlyState extends State<AdminFreshMonthly>
           employeedata['bags'],
           employeedata['orders'],
           employeedata['cash'],
+          employeedata['GSF'],
+          employeedata['Login'],
         ];
         rows.add(row);
       }
@@ -661,7 +679,6 @@ Future<void> fetchNewData() async {
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
   try {
-    final prefs = await SharedPreferences.getInstance();
     // Store data as per your requirement
     // Example: prefs.setString('someKey', data['someValue']);
     // Replace 'someKey' and 'someValue' with your actual data keys and values

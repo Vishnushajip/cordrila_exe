@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Pages/Admin_fresh/Admin_fresh_monthly.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +7,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 import 'Add_Employee_details.dart';
 import 'Admin_fresh_daily.dart';
 
@@ -202,7 +202,7 @@ class _FreshFilterPageAllState extends State<FreshFilterPageAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: SpinnerWidget());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
@@ -265,6 +265,19 @@ class _FreshFilterPageAllState extends State<FreshFilterPageAll>
       if (data['cash'] != null && data['cash'].toString().isNotEmpty) {
         details.add(Text(
           'cash: ${data['cash']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['GSF'] != null && data['GSF'].toString().isNotEmpty) {
+        details.add(Text(
+          'GSF: ${data['GSF']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
@@ -368,6 +381,8 @@ class _FreshFilterPageAllState extends State<FreshFilterPageAll>
         'bags',
         'orders',
         'cash',
+        'GSF',
+        'Login',
       ];
       rows.add(headers);
 
@@ -382,6 +397,8 @@ class _FreshFilterPageAllState extends State<FreshFilterPageAll>
           employeedata['bags'],
           employeedata['orders'],
           employeedata['cash'],
+          employeedata['GSF'],
+          employeedata['Login'],
         ];
         rows.add(row);
       }
@@ -468,9 +485,7 @@ Future<void> fetchNewData() async {
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-    
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

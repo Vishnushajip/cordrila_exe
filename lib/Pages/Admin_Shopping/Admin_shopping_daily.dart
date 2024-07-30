@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Pages/Admin_Shopping/Admin_shopping_monthly.dart';
 import 'package:cordrila_exe/Pages/Homepage.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -9,7 +8,7 @@ import 'package:csv/csv.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../Widgets/Loaders/Spinner.dart';
 import '../transition.dart';
 
 class ShoppingProviderDaily extends ChangeNotifier {
@@ -55,7 +54,10 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -94,11 +96,15 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -291,6 +297,32 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
           style: const TextStyle(fontSize: 15, color: Colors.grey),
         ));
       }
+      if (data['Cash Submitted'] != null &&
+          data['Cash Submitted'].toString().isNotEmpty) {
+        details.add(Text(
+          'Cash Submitted: ${data['Cash Submitted']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Helmet Adherence'] != null &&
+          data['Helmet Adherence'].toString().isNotEmpty) {
+        details.add(Text(
+          'Helmet Adherence: ${data['Helmet Adherence']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['LM Read'] != null && data['LM Read'].toString().isNotEmpty) {
+        details.add(Text(
+          'LM Read: ${data['LM Read']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
+      if (data['Login'] != null && data['Login'].toString().isNotEmpty) {
+        details.add(Text(
+          'Login: ${data['Login']}',
+          style: const TextStyle(fontSize: 15, color: Colors.grey),
+        ));
+      }
 
       return details;
     }
@@ -323,15 +355,8 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -348,7 +373,7 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -549,6 +574,10 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
         'Pickup',
         'Shipment',
         'MFN',
+        'Helmet Adherence',
+        'LM Read',
+        'Login',
+        'Cash Submitted',
       ];
       rows.add(headers);
 
@@ -557,14 +586,18 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
         // Convert Timestamp to DateTime and format it in 12-hour format with AM/PM
         DateFormat('dd-MM-yyyy hh:mm').format(employeedata['Date'].toDate());
         final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
+          'ID',
+          'Name',
+          'Location',
+          'Date',
+          'Shift',
+          'Pickup',
+          'Shipment',
+          'MFN',
+          'Helmet Adherence',
+          'LM Read',
+          'Login',
+          'Cash Submitted',
         ];
         rows.add(row);
       }
@@ -631,110 +664,6 @@ class _ShoppingPageDailyState extends State<ShoppingPageDaily>
       print('Error downloading CSV: $e');
       _showAlertDialog(context, 'Error', 'Error downloading CSV');
     }
-  }
-
-  Future<void> _downloadAllData(BuildContext context) async {
-    try {
-      final List<List<dynamic>> rows = [];
-
-      final snapshot = await FirebaseFirestore.instance
-          .collection('userdata')
-          .where('mfn', isNotEqualTo: true)
-          .get();
-
-      if (snapshot.docs.isEmpty) {
-        _showAlertDialog(
-            context, 'No Data Found', 'No data found in the database.');
-        return;
-      }
-
-      final headers = [
-        'ID',
-        'Name',
-        'Location',
-        'Date',
-        'Shift',
-        'Pickup',
-        'Shipment',
-        'MFN',
-      ];
-      rows.add(headers);
-
-      for (final doc in snapshot.docs) {
-        final employeedata = doc.data();
-        final row = [
-          employeedata['ID'],
-          employeedata['Name'],
-          employeedata['Location'],
-          employeedata['Date'],
-          employeedata['shift'],
-          employeedata['pickup'],
-          employeedata['shipment'],
-          employeedata['mfn'],
-        ];
-        rows.add(row);
-      }
-
-      await _downloadCSV(context, rows, 'Shopping_all_data');
-    } catch (e) {
-      print('Error downloading all data: $e');
-    }
-  }
-
-  Widget _buildMonthlyDataTab(BuildContext context) {
-    final filterProvider = Provider.of<ShoppingProviderDaily>(context);
-    final DateTime? selectedDate = filterProvider.selectedDate;
-    if (selectedDate == null) {
-      return const SizedBox.shrink();
-    }
-
-    final DateTime startOfMonth =
-        DateTime(selectedDate.year, selectedDate.month);
-    final DateTime endOfMonth =
-        DateTime(selectedDate.year, selectedDate.month + 1, 0);
-
-    return Column(
-      children: [
-        Expanded(
-          child: StreamBuilder<QuerySnapshot>(
-            stream: FirebaseFirestore.instance
-                .collection('userdata')
-                .where('Date', isGreaterThanOrEqualTo: startOfMonth)
-                .where('Date', isLessThanOrEqualTo: endOfMonth)
-                .where('mfn', isNotEqualTo: true)
-                .snapshots(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: SpinnerWidget(),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Text('Error: ${snapshot.error}'),
-                );
-              }
-              final documents = snapshot.data!.docs;
-              if (documents.isEmpty) {
-                return const Center(
-                  child: Text('No data found for the selected month.'),
-                );
-              }
-              return ListView.separated(
-                itemCount: documents.length,
-                itemBuilder: (context, index) {
-                  final employeedata =
-                      documents[index].data() as Map<String, dynamic>;
-                  return _buildListItem(employeedata);
-                },
-                separatorBuilder: (BuildContext context, int index) =>
-                    const Divider(),
-              );
-            },
-          ),
-        ),
-      ],
-    );
   }
 
   void _showAlertDialog(BuildContext context, String title, String message,
@@ -818,7 +747,6 @@ Future<void> fetchNewData() async {
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
   try {
-    final prefs = await SharedPreferences.getInstance();
     // Store data as per your requirement
     // Example: prefs.setString('someKey', data['someValue']);
     // Replace 'someKey' and 'someValue' with your actual data keys and values

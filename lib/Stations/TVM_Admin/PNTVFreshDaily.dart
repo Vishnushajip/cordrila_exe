@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -9,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../Pages/transition.dart';
+import '../../Widgets/Loaders/Spinner.dart';
 import 'PNTVShoppingMonthly.dart';
 import 'PNTV_Home.dart';
 
@@ -55,7 +55,10 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
-      });
+      });_searchController.value = _searchController.value.copyWith(
+        text: _searchController.text.toUpperCase(),
+        selection: _searchController.selection,
+      );
     });
   }
 
@@ -94,11 +97,15 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: const InputDecoration(
-                        hintText: 'Search',
-                        border: InputBorder.none,
+                    child: Tooltip(
+                      message: 'Monthly Page',
+                      child: TextField(
+                        textCapitalization: TextCapitalization.characters,
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search',
+                          border: InputBorder.none,
+                        ),
                       ),
                     ),
                   ),
@@ -242,7 +249,6 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
     }
   }
 
-  
   Widget _buildListItem(Map<String, dynamic> employeedata) {
     List<Widget> buildEmployeeDetails(Map<String, dynamic> data) {
       List<Widget> details = [
@@ -321,15 +327,8 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
         selectedDate.year, selectedDate.month, selectedDate.day, 0, 0, 0);
     final DateTime endOfDay = DateTime(
         selectedDate.year, selectedDate.month, selectedDate.day, 23, 59, 59);
-    String capitalizeEachWord(String input) {
-      if (input.isEmpty) return input;
-      return input.split(' ').map((word) {
-        if (word.isEmpty) return word;
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
-    }
 
-    String transformedSearchQuery = capitalizeEachWord(_searchQuery);
+    String transformedSearchQuery = _searchQuery;
     return Column(
       children: [
         Expanded(
@@ -356,7 +355,7 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(
-                  child: SpinnerWidget(),
+                  child: BoxLoader(),
                 );
               }
               if (snapshot.hasError) {
@@ -586,8 +585,8 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
         rows.add(row);
       }
 
-      final formattedDate = DateFormat('dd_MM_yyyy_HH_mm_ss')
-          .format(DateTime.now()); 
+      final formattedDate =
+          DateFormat('dd_MM_yyyy_HH_mm_ss').format(DateTime.now());
       await _downloadCSV(context, rows, '   Fresh_daily_data_$formattedDate');
     } catch (e) {
       print('Error downloading data: $e');
@@ -610,14 +609,13 @@ class _PNTVShoppingPageDailyState extends State<PNTVShoppingPageDaily>
       BuildContext context, List<List<dynamic>> rows, String fileName) async {
     try {
       final String downloadDirectory = await _getDownloadDirectory();
-      DateTime.now().millisecondsSinceEpoch.toString(); 
+      DateTime.now().millisecondsSinceEpoch.toString();
       final String filePath = '$downloadDirectory/$fileName.csv';
 
       final List<List<dynamic>> formattedRows = [];
 
       for (final row in rows) {
-        final List<dynamic> formattedRow =
-            List.from(row); 
+        final List<dynamic> formattedRow = List.from(row);
 
         if (formattedRow.length > 3 && formattedRow[3] is Timestamp) {
           final Timestamp timestamp = formattedRow[3] as Timestamp;
@@ -724,9 +722,7 @@ Future<void> fetchNewData() async {
 }
 
 void storeDataInSharedPreferences(Map<String, dynamic> data) async {
-  try {
-   
-  } catch (e) {
+  try {} catch (e) {
     print('Error storing data in SharedPreferences: $e');
   }
 }

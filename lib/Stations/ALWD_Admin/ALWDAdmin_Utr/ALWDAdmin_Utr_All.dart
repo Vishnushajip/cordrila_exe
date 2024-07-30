@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cordrila_exe/Stations/ALWD_Admin/ALWDAdmin_Utr/ALWDAdmin_Utr_Monthly.dart';
-import 'package:cordrila_exe/Widgets/Loaders/Loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -8,7 +7,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../Widgets/Loaders/Spinner.dart';
 import 'ALWDAdmin_Utr_daily.dart';
 
 class ALWDUtrProviderAll extends ChangeNotifier {
@@ -184,7 +183,7 @@ class _ALWDAdminUtrAllState extends State<ALWDAdminUtrAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: SpinnerWidget());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));

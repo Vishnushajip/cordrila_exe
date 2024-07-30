@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'Pages/Admin_Shopping/Admin_shopping_All.dart';
 import 'Pages/Admin_Shopping/Admin_shopping_daily.dart';
 import 'Pages/Admin_Shopping/Admin_shopping_monthly.dart';
@@ -24,10 +25,8 @@ import 'Pages/Admin_Utr/Admin_Utr_Monthly.dart';
 import 'Pages/Admin_fresh/Admin_fresh_All.dart';
 import 'Pages/Admin_fresh/Admin_fresh_monthly.dart';
 import 'Pages/Admin_req.dart';
-import 'Pages/AdminshoppingPage.dart';
 import 'Pages/Homepage.dart';
 import 'Pages/Togggle_button.dart';
-import 'Pages/admin_freshPage.dart';
 import 'Pages/admin_utr.dart';
 import 'Pages/search_name.dart';
 import 'Stations/ALWD_Admin/ALWDAdmin_Utr/ALWDAdmin_Utr_All.dart';
@@ -89,12 +88,7 @@ void main() async {
         ChangeNotifierProvider<AdminRequestProvider>(
           create: (context) => AdminRequestProvider(),
         ),
-        ChangeNotifierProvider<ShoppingFilterProvider>(
-          create: (_) => ShoppingFilterProvider(),
-        ),
-        ChangeNotifierProvider<FreshFilterProvider>(
-          create: (_) => FreshFilterProvider(),
-        ),
+
         ChangeNotifierProvider<UtrFilterProvider>(
           create: (_) => UtrFilterProvider(),
         ),
@@ -259,29 +253,34 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      builder: (context, child) => ResponsiveBreakpoints.builder(
-        child: child!,
-        breakpoints: [
-          const Breakpoint(start: 0, end: 450, name: MOBILE),
-          const Breakpoint(start: 451, end: 800, name: TABLET),
-          const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-          const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
-        ],
-      ),
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      routes: {
-        '/': (context) => SplashScreen(),
-        '/login': (context) => LoginPage(),
-        '/home': (context) => HomePage(),
-        '/alwd': (context) => ALWDHomePage(),
-        '/cokd': (context) => COKDHomePage(),
-        '/pnkp': (context) => PNKPHomePage(),
-        '/pntv': (context) => PNTVHomePage(),
-        '/trvy': (context) => TRVYHomePage(),
-        '/tvcy': (context) => TVCYHomePage(),
-        '/trvm': (context) => TRVMHomePage(),
+    return ScreenUtilInit(
+      designSize: Size(360, 690),
+      builder: (context, child) {
+        return MaterialApp(
+          builder: (context, child) => ResponsiveBreakpoints.builder(
+            child: child!,
+            breakpoints: [
+              const Breakpoint(start: 0, end: 450, name: MOBILE),
+              const Breakpoint(start: 451, end: 800, name: TABLET),
+              const Breakpoint(start: 801, end: 1920, name: DESKTOP),
+              const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+            ],
+          ),
+          debugShowCheckedModeBanner: false,
+          initialRoute: '/',
+          routes: {
+            '/': (context) => SplashScreen(),
+            '/login': (context) => LoginPage(),
+            '/home': (context) => HomePage(),
+            '/alwd': (context) => ALWDHomePage(),
+            '/cokd': (context) => COKDHomePage(),
+            '/pnkp': (context) => PNKPHomePage(),
+            '/pntv': (context) => PNTVHomePage(),
+            '/trvy': (context) => TRVYHomePage(),
+            '/tvcy': (context) => TVCYHomePage(),
+            '/trvm': (context) => TRVMHomePage(),
+          },
+        );
       },
     );
   }

@@ -6,7 +6,7 @@ import 'dart:io';
 import 'package:csv/csv.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../../../Widgets/Loaders/Spinner.dart';
 import 'TVCYAdmin_Utr_Monthly.dart';
 import 'TVCYAdmin_Utr_daily.dart';
 
@@ -183,7 +183,7 @@ class _TVCYAdminUtrAllState extends State<TVCYAdminUtrAll>
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(child: BoxLoader());
         }
         if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
